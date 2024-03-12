@@ -22,7 +22,7 @@ const serviceSchema = new Schema({
     },
 
     fees:{
-        type:Number
+        type:String
     },
 
     area:{

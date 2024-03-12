@@ -1,6 +1,7 @@
 const serviceSchema = require('../models/ServiceModel')
 const multer = require('multer')
 const path = require('path')
+const mongoose = require("mongoose")
 const cloudinaryController = require("./CloudinaryController")
 
 const storage = multer.diskStorage({
@@ -65,7 +66,7 @@ const createService = async(req,res)=>{
         })
     }catch(error){
         res.status(500).json({
-            message:"Server error",
+            message:"create error",
             data:error,
             falg:-1
         })
@@ -82,7 +83,7 @@ const getAllServices = async(req,res)=>{
         })
     }catch(error){
         res.status(500).json({
-            message:"Server error",
+            message:"AllService error",
             data:error,
             flag:-1
         })
@@ -90,8 +91,11 @@ const getAllServices = async(req,res)=>{
 } 
 
 const getServiceById = async(req,res)=>{
+    const id = req.params.id;
+    console.log(id)
     try{
-        const service = await serviceSchema.findById(req.params.id).populate("category").populate("subCategory").populate("type").populate("serviceprovider")
+       
+        const service = await serviceSchema.findById(id).populate("category").populate("subCategory").populate("type").populate("serviceprovider")
         if(service==null){
             res.status(404).json({
                 message:"Service not found",
@@ -106,7 +110,7 @@ const getServiceById = async(req,res)=>{
         }
     }catch(error){
         res.status(500).json({
-            message:"Server Error",
+            message:error.message,
             data:error,
             flag:-1
         })
@@ -130,7 +134,7 @@ const deleteService = async(req,res)=>{
         }
     }catch(error){
         res.status(500).json({
-            message:"Server error",
+            message:"Delete error",
             data:error,
             flag:-1
         })
@@ -155,7 +159,7 @@ const updateService = async(req,res)=>{
         }
     }catch(error){
         res.status(500).json({
-            message:"Server error",
+            message:"Update error",
             data:error,
             flag:-1
         })
@@ -164,6 +168,7 @@ const updateService = async(req,res)=>{
 
 const getServiceByServiceProviderId = async(req,res)=>{
     const serviceProviderId = req.params.id
+    console.log("get" ,serviceProviderId)
     try{
         const services = await serviceSchema.find({serviceprovider:serviceProviderId})
         // console.log(services)
@@ -189,7 +194,29 @@ const getServiceByServiceProviderId = async(req,res)=>{
         })
     }
 }
+const FilterData = async(req,res)=>{
+    try{
 
+        const data =  await serviceSchema.find({"serviceName" : {'$regex':req.query.serviceName, '$options' : 'i'}}).populate("category").populate("subCategory").populate("type").populate("serviceprovider")
+        console.log(data);
+        if(!data){
+            res.status(400).json({
+                message:"Data not found"
+            })
+        }
+        else{
+        res.status(200).json({
+            message:"Dats geted Successfully",
+            data:data
+        })
+    }
+
+    }catch(error){
+        res.status(400).json({
+            message:error.message
+        })
+    }
+}
 
 module.exports ={
     createService,
@@ -198,5 +225,6 @@ module.exports ={
     deleteService,
     updateService,
     getServiceByServiceProviderId,
-    fileUpload
+    fileUpload,
+    FilterData
 }

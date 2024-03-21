@@ -20,7 +20,7 @@ const createBooking = async(req,res)=>{
 
 const getBookingById = async(req,res)=>{
     try{
-        const booking = await bookingSchema.findById(req.params.id)
+        const booking = await bookingSchema.findById(req.params.id).populate("service").populate("serviceprovider").populate("user")
         if(booking==null){
             res.status(404).json({
                 message:"Booking not found",
